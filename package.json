@@ -1,0 +1,32 @@
+{
+  "name": "study-collab-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./services/*\" --filter \"./apps/*\" dev",
+    "build": "pnpm --filter \"./packages/*\" build && pnpm --filter \"./services/*\" --filter \"./apps/*\" build",
+    "test": "pnpm --recursive test",
+    "lint": "pnpm --recursive lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "pnpm --recursive type-check",
+    "db:generate": "pnpm --filter @study-collab/db prisma generate",
+    "db:migrate": "pnpm --filter @study-collab/db prisma migrate dev",
+    "db:studio": "pnpm --filter @study-collab/db prisma studio",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+# Build from repo root: docker build -f Dockerfile.backend --build-arg SERVICE=auth -t study-collab-auth .
+ARG SERVICE=auth
+FROM node:20-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+COPY package.json pnpm-lock.yaml* ./
+COPY packages packages
+COPY services services
+RUN pnpm install --frozen-lockfile || pnpm install
+RUN pnpm --filter @study-collab/db exec prisma generate
+RUN pnpm --filter @study-collab/${SERVICE}-service build || pnpm --filter @study-collab/${SERVICE} build
+
+FROM node:20-alpine
+ARG SERVICE=auth
+ENV SERVICE=${SERVICE}
+WORKDIR /app
+COPY package.json pnpm-lock.yaml* ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/services/${SERVICE} ./services/${SERVICE}
+COPY --from=builder /app/services/package.json ./services/
+WORKDIR /app/services/${SERVICE}
+CMD ["node", "dist/index.js"]
